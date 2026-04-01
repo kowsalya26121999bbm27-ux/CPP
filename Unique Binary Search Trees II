@@ -1,0 +1,45 @@
+#include <vector>
+
+using namespace std;
+
+/**
+ * Note: TreeNode is already defined by LeetCode. 
+ * Do not redefine it in your solution.
+ */
+
+class Solution {
+public:
+    vector<TreeNode*> generateTrees(int n) {
+        if (n == 0) return {};
+        return buildTrees(1, n);
+    }
+
+private:
+    vector<TreeNode*> buildTrees(int start, int end) {
+        // Base case: if start > end, there's no node to create, return null
+        if (start > end) {
+            return {nullptr};
+        }
+
+        vector<TreeNode*> allTrees;
+        
+        // Pick each number i as the root
+        for (int i = start; i <= end; ++i) {
+            // Recursively get all possible left and right subtrees
+            vector<TreeNode*> leftSubtrees = buildTrees(start, i - 1);
+            vector<TreeNode*> rightSubtrees = buildTrees(i + 1, end);
+
+            // Combine every left subtree with every right subtree for root i
+            for (TreeNode* left : leftSubtrees) {
+                for (TreeNode* right : rightSubtrees) {
+                    TreeNode* root = new TreeNode(i);
+                    root->left = left;
+                    root->right = right;
+                    allTrees.push_back(root);
+                }
+            }
+        }
+        return allTrees;
+    }
+};
+
