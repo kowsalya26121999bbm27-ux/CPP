@@ -1,0 +1,42 @@
+#include <vector>
+#include <string>
+#include <unordered_set>
+#include <unordered_map>
+
+class Solution {
+    std::unordered_map<std::string, std::vector<std::string>> memo;
+
+public:
+    std::vector<std::string> wordBreak(std::string s, std::vector<std::string>& wordDict) {
+        std::unordered_set<std::string> dict(wordDict.begin(), wordDict.end());
+        return helper(s, dict);
+    }
+
+private:
+    std::vector<std::string> helper(std::string s, std::unordered_set<std::string>& dict) {
+        // If we've already solved this substring, return the cached result
+        if (memo.count(s)) return memo[s];
+        
+        // Base case: empty string returns a list with an empty string to allow concatenation
+        if (s.empty()) return {""};
+
+        std::vector<std::string> result;
+
+        // Try prefix of every possible length
+        for (int i = 1; i <= s.length(); ++i) {
+            std::string word = s.substr(0, i);
+            
+            if (dict.count(word)) {
+                // Get all valid sentences for the remaining suffix
+                std::vector<std::string> suffixWays = helper(s.substr(i), dict);
+                
+                for (std::string& way : suffixWays) {
+                    std::string space = way.empty() ? "" : " ";
+                    result.push_back(word + space + way);
+                }
+            }
+        }
+
+        return memo[s] = result;
+    }
+};
