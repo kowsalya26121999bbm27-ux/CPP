@@ -1,0 +1,41 @@
+#include <vector>
+#include <queue>
+
+class Solution {
+public:
+    // Custom comparator for the priority queue to keep it a Min-Heap
+    struct compare {
+        bool operator()(ListNode* a, ListNode* b) {
+            return a->val > b->val; // Min-heap: smallest value at the top
+        }
+    };
+
+    ListNode* mergeKLists(std::vector<ListNode*>& lists) {
+        // We only store the current heads of the k lists in the heap
+        std::priority_queue<ListNode*, std::vector<ListNode*>, compare> minHeap;
+
+        // Step 1: Add the initial head of each list to the heap
+        for (auto list : lists) {
+            if (list) minHeap.push(list);
+        }
+
+        ListNode dummy(0);
+        ListNode* tail = &dummy;
+
+        // Step 2: Extract smallest and push its successor
+        while (!minHeap.empty()) {
+            ListNode* smallest = minHeap.top();
+            minHeap.pop();
+
+            tail->next = smallest;
+            tail = tail->next;
+
+            // If the extracted node has a next node, add it to the heap
+            if (smallest->next) {
+                minHeap.push(smallest->next);
+            }
+        }
+
+        return dummy.next;
+    }
+};
