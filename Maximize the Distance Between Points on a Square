@@ -1,0 +1,60 @@
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxDistance(int side, vector<vector<int>>& points, int k) {
+        // 1. Map 2D boundary points to 1D positions along the perimeter
+        vector<long long> pos;
+        for (auto& p : points) {
+            int x = p[0], y = p[1];
+            if (y == 0) pos.push_back(x);                      // Bottom edge
+            else if (x == side) pos.push_back(side + y);       // Right edge
+            else if (y == side) pos.push_back(2LL * side + (side - x)); // Top edge
+            else pos.push_back(3LL * side + (side - y));       // Left edge
+        }
+        sort(pos.begin(), pos.end());
+
+        long long totalPerimeter = 4LL * side;
+        int n = pos.size();
+        int low = 0, high = side, ans = 0;
+
+        // 2. Binary search for the maximum possible minimum Manhattan distance
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (canPlace(pos, k, mid, totalPerimeter)) {
+                ans = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+
+private:
+    bool canPlace(const vector<long long>& pos, int k, int dist, long long totalPerimeter) {
+        int n = pos.size();
+        // Try different starting points to handle the circular wrap-around
+        for (int i = 0; i < n; ++i) {
+            if (pos[i] >= pos[0] + dist && i > 0) break; // Optimization
+            int count = 1;
+            long long lastPos = pos[i];
+            for (int j = 1; j < n; ++j) {
+                int idx = (i + j) % n;
+                long long currentPos = (idx < i) ? pos[idx] + totalPerimeter : pos[idx];
+                if (currentPos - lastPos >= dist) {
+                    count++;
+                    lastPos = currentPos;
+                    if (count >= k) break;
+                }
+            }
+            // Check distance between last and first points for circularity
+            if (count >= k && (pos[i] + totalPerimeter - lastPos >= dist)) return true;
+        }
+        return false;
+    }
+};
