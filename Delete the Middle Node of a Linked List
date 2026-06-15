@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+struct ListNode* deleteMiddle(struct ListNode* head) {
+    // Edge case: If the list contains only 1 node, deleting it leaves an empty list.
+    if (head == NULL || head->next == NULL) {
+        free(head);
+        return NULL;
+    }
+
+    // Initialize two pointers.
+    // 'slow' moves 1 step at a time, 'fast' moves 2 steps at a time.
+    struct ListNode* slow = head;
+    struct ListNode* fast = head;
+    
+    // Track the node immediately preceding the 'slow' pointer.
+    struct ListNode* prev = NULL;
+
+    // Traverse the list. When 'fast' reaches the end, 'slow' will be at the middle.
+    while (fast != NULL && fast->next != NULL) {
+        prev = slow;
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    // Disconnect the middle node ('slow') from the list.
+    prev->next = slow->next;
+
+    // Free the memory of the deleted middle node.
+    free(slow);
+
+    // Return the head of the modified list.
+    return head;
+}
